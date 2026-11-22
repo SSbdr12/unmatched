@@ -9,6 +9,7 @@ const T=(count,type,value,boost,title,text)=>({count,type,value,boost,title,text
 async function getLib(){let d=await all('decks'),m=await all('maps');
   if(!d.length){d=[{id:'sample-hero',name:'Sample Hero',color:'#7a3b8f',hero:{name:'Sample Hero',hp:16,move:2},side:{name:'Squire',hp:1,count:1},cards:[T(4,'a',4,2,'Heavy Blow','Deal damage equal to value if not blocked.'),T(4,'d',3,1,'Parry','Prevent damage equal to value.'),T(5,'v',2,2,'Quick Feint','Use as attack or defense.'),T(3,'s',0,1,'Rally','Draw 2 cards.'),T(3,'a',2,3,'Lunge','Attack from 2 spaces away.')]}];await put('decks',d[0])}
   if(!m.length){m=[{id:'sample-arena',name:'Sample Arena',zones:[[15,20],[40,15],[65,20],[85,30],[20,50],[50,50],[80,60],[15,80],[45,82],[75,85]],links:[[0,1],[1,2],[2,3],[0,4],[1,5],[2,5],[3,6],[4,5],[5,6],[4,7],[5,8],[6,9],[7,8],[8,9]]}];await put('maps',m[0])}
+  if(!(await R('GET','seed:leshen'))){await R('SET','seed:leshen','1');if(!d.find(x=>x.id==='ancient-leshen')){const l={id:'ancient-leshen',name:'Ancient Leshen',color:'#3f6b3a',hero:{name:'Ancient Leshen',hp:13,move:1},side:{name:'Wolf',hp:1,count:2,move:3},cards:[]};await put('decks',l);d.push(l)}}
   return{decks:d,maps:m}}
 const uid=()=>Math.random().toString(36).slice(2,9);
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -168,8 +169,8 @@ function client(){
     if(!S)return A.innerHTML='<p class=c>Connecting…</p>';
     if(S.me<0)return A.innerHTML=joinHTML();
     const ci=$('#ci'),cv=ci?ci.value:'',cf=ci&&document.activeElement===ci;
-    A.innerHTML=gameHTML();
-    const n=$('#ci');if(n){n.value=cv;if(cf)n.focus()}const lg=$('#lg');if(lg)lg.scrollTop=1e9;
+    const ks=['#side','#hand','.modal'].map(q=>{const e=$(q);return e?[q,e.scrollTop,e.scrollLeft]:null}).filter(Boolean),wy=scrollY;A.innerHTML=gameHTML();ks.forEach(k=>{const e=$(k[0]);if(e){e.scrollTop=k[1];e.scrollLeft=k[2]}});scrollTo(0,wy);
+    const n=$('#ci');if(n){n.value=cv;if(cf)n.focus({preventScroll:true})}const lg=$('#lg');if(lg)lg.scrollTop=1e9;
   }
   let ver=-1,tm;
   function connect(){clearTimeout(tm);S=null;ver=-1;if(!room)return render();poll()}
